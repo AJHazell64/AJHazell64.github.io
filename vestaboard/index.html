@@ -369,6 +369,78 @@ button small {
 </section>
 
 
+<section class="panel">
+  <div class="heading">DISPLAY MODE</div>
+
+  <div style="display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:6px">
+
+    <button class="modeBtn" data-mode="morning"
+      style="padding:15px 2px;font-size:12px">
+      ☀ Morning
+    </button>
+
+    <button class="modeBtn" data-mode="day"
+      style="padding:15px 2px;font-size:12px">
+      ☀ Day
+    </button>
+
+    <button class="modeBtn" data-mode="evening"
+      style="padding:15px 2px;font-size:12px">
+      ◐ Evening
+    </button>
+
+    <button class="modeBtn" data-mode="night"
+      style="padding:15px 2px;font-size:12px">
+      ☾ Night
+    </button>
+  </div>
+
+  <div style="display:grid;
+    grid-template-columns:90px 1fr;
+    gap:8px;margin-top:8px;align-items:end">
+
+    <div>
+      <label for="modeHours"
+        style="display:block;font-size:11px;
+        color:#a4a9b4;margin-bottom:5px">
+        Hours
+      </label>
+
+      <select id="modeHours"
+        style="width:100%;height:47px;
+        background:#2b2e36;color:white;
+        border:1px solid #454952;
+        border-radius:10px;font-size:16px;
+        text-align:center">
+        <option value="1" selected>1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+        <option value="8">8</option>
+        <option value="9">9</option>
+        <option value="10">10</option>
+        <option value="11">11</option>
+        <option value="12">12</option>
+      </select>
+    </div>
+
+    <button id="cancelModeBtn"
+      style="padding:14px 8px;font-size:14px">
+      ✕ Cancel — Restore Auto
+    </button>
+  </div>
+
+  <div class="notice" id="modeStatus">
+    Normal automatic schedule.
+  </div>
+</section>
+
+
 
 <section class="panel" id="quoteLibraryPanel" hidden>
 
@@ -953,6 +1025,111 @@ resetQuoteBtn.addEventListener("click", async () => {
   } finally {
     resetQuoteBtn.disabled = false;
   }
+});
+
+const modeButtons =
+  document.querySelectorAll(".modeBtn");
+
+const modeHours =
+  document.getElementById("modeHours");
+
+const cancelModeBtn =
+  document.getElementById("cancelModeBtn");
+
+const modeStatus =
+  document.getElementById("modeStatus");
+
+let changingMode = false;
+
+async function changeDisplayMode(mode) {
+  if (!authenticated) {
+    alert("Please log in first.");
+    return;
+  }
+
+  if (changingMode) return;
+
+  const hours = Number(modeHours.value);
+
+  changingMode = true;
+
+  modeButtons.forEach(button => {
+    button.disabled = true;
+  });
+
+  cancelModeBtn.disabled = true;
+
+  modeStatus.textContent =
+    "Sending display mode request...";
+
+  try {
+    const response = await fetch(
+      "https://vestaboard-control.t9hg5dy2zv.workers.dev/mode",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-App-Password":
+            document.getElementById("appPassword").value,
+        },
+        body: JSON.stringify({
+          mode,
+          hours
+        }),
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error(
+        result.error || "Unable to change display mode"
+      );
+    }
+
+    modeStatus.textContent =
+      mode === "auto"
+        ? "Automatic schedule restored."
+        : mode.toUpperCase() +
+          " mode requested for " +
+          hours +
+          (hours === 1 ? " hour." : " hours.");
+
+    if (mode !== "auto") {
+      modeButtons.forEach(button => {
+        button.style.borderColor =
+          button.dataset.mode === mode
+            ? "#2484cf"
+            : "#454952";
+      });
+    } else {
+      modeButtons.forEach(button => {
+        button.style.borderColor = "#454952";
+      });
+    }
+
+  } catch (error) {
+    modeStatus.textContent =
+      error.message || "Unable to change display mode";
+  } finally {
+    changingMode = false;
+
+    modeButtons.forEach(button => {
+      button.disabled = false;
+    });
+
+    cancelModeBtn.disabled = false;
+  }
+}
+
+modeButtons.forEach(button => {
+  button.addEventListener("click", () => {
+    changeDisplayMode(button.dataset.mode);
+  });
+});
+
+cancelModeBtn.addEventListener("click", () => {
+  changeDisplayMode("auto");
 });
 
 const loginForm = document.getElementById("loginForm");
