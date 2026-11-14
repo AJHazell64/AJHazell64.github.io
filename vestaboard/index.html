@@ -364,7 +364,8 @@ button small {
 </section>
 
 
-<section class="panel">
+
+<section class="panel" id="quoteLibraryPanel" hidden>
   <div class="heading">QUOTE LIBRARY · LIVE</div>
 
   <div class="statrow">
@@ -878,10 +879,18 @@ async function refreshQuoteStatus() {
   }
 }
 
-statusQuoteBtn.addEventListener(
-  "click",
-  refreshQuoteStatus
-);
+
+statusQuoteBtn.addEventListener("click", () => {
+  const libraryPanel =
+    document.getElementById("quoteLibraryPanel");
+
+  libraryPanel.hidden = !libraryPanel.hidden;
+
+  if (!libraryPanel.hidden) {
+    refreshQuoteStatus();
+  }
+});
+
 
 const loginForm = document.getElementById("loginForm");
 
@@ -919,9 +928,10 @@ loginForm.addEventListener("submit", async event => {
 
 if (result.authenticated) {
 
+
 authenticated = true;
 if (quoteEditor.open) previewQuote();
-refreshQuoteStatus();
+
 
   loginStatus.textContent = "Password accepted.";
 
