@@ -614,7 +614,9 @@ addQuoteBtn.addEventListener("click", async () => {
     }
 
     quoteInput.value = "";
-    message = "Quote saved — queued for the next eligible hour";
+
+message = "Added next in quote queue";
+
 
   } catch (error) {
     message = error.message || "Unable to save quote";
