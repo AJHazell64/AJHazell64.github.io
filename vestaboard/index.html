@@ -42,6 +42,36 @@ button small{display:block;font-size:12px;font-weight:normal;color:#a4a9b4;margi
 .statrow:last-child{border:0}
 .muted{color:#a4a9b4}
 .notice{margin-top:15px;color:#a4a9b4;font-size:12px;line-height:1.6}
+
+/* Compact mobile dashboard */
+@media (max-width:600px) {
+  main { padding:10px 12px; }
+  h1 { font-size:20px; margin:4px 0; }
+  .panel {
+    padding:10px;
+    margin-top:8px;
+    border-radius:12px;
+  }
+  .heading {
+    font-size:11px;
+    margin-bottom:8px;
+  }
+  .board { padding:5px 3px; }
+  .board-row { gap:2px; margin:2px 0; }
+  .controls {
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:5px;
+  }
+  .controls button {
+    padding:10px 2px;
+    font-size:12px;
+    border-radius:9px;
+  }
+  .controls button small { display:none; }
+  .notice { margin-top:6px; font-size:11px; }
+  .statrow { padding:5px 0; font-size:12px; }
+}
+ 
 </style>
 </head>
 <body>
@@ -91,6 +121,42 @@ button small{display:block;font-size:12px;font-weight:normal;color:#a4a9b4;margi
 <div class="notice">Live board connection pending</div>
 </section>
 
+
+<section class="panel" id="quoteEditor">
+  <div class="heading">ADD A QUOTE</div>
+
+  <label for="quoteInput" class="subtitle">
+    Enter your quote
+  </label>
+
+  <textarea
+    id="quoteInput"
+    rows="3"
+    placeholder="Type your new quote here..."
+    style="width:100%;margin-top:10px;
+    background:#101114;color:white;
+    border:1px solid #454952;
+    border-radius:10px;padding:14px;
+    font-size:16px;resize:vertical"
+  ></textarea>
+
+  <div class="notice" id="quoteFitStatus">
+    Live quote preview coming next.
+  </div>
+
+  <button id="addQuoteBtn"
+    disabled
+    style="width:100%;margin-top:14px">
+    + Add Quote
+  </button>
+
+  <div class="notice">
+    Adds to your quote library without
+    changing the physical board.
+  </div>
+</section>
+
+ 
 <section class="panel">
 <div class="heading">CONTROLS</div>
 <div class="controls">
