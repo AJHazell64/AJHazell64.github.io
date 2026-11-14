@@ -222,8 +222,9 @@ button small {
 
 <header>
   <div>
-    <h1>Vestaboard</h1>
-    <div class="subtitle">Mobile Control Centre</div>
+
+<h1>Monsom Vestaboard</h1>
+
   </div>
   <div style="font-size:28px">▦</div>
 </header>
@@ -308,6 +309,17 @@ button small {
       + Add Quote
     </button>
 
+<button
+  id="clearQuoteBtn"
+  type="button"
+  style="width:100%;margin-top:8px;
+  padding:12px;background:#3a2528;
+  border:1px solid #75474d">
+  ✕ Clear Quote
+</button>
+
+
+    
     <div class="notice">
       New quotes will be saved and scheduled
       for the next available hourly quote.
@@ -547,6 +559,13 @@ quoteEditor.addEventListener("toggle", () => {
 });
 
 quoteInput.addEventListener("input", previewQuote);
+
+document.getElementById("clearQuoteBtn")
+  .addEventListener("click", () => {
+    quoteInput.value = "";
+    previewQuote();
+    quoteInput.blur();
+  });
 
 quoteInput.addEventListener("keydown", event => {
   if (event.key === "Enter") {
