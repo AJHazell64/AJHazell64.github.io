@@ -339,10 +339,12 @@ button small {
 </button>
 
 
-    <button disabled>
-      ✕ Remove
-      <small>Exclude quote</small>
-    </button>
+
+<button id="removeQuoteBtn">
+  ✕ Remove
+  <small>Exclude quote</small>
+</button>
+
 
     <button disabled>
       ▤ Status
@@ -738,7 +740,59 @@ nextQuoteBtn.addEventListener("click", async () => {
 });
 
   
-const loginForm = document.getElementById("loginForm");
+
+const removeQuoteBtn =
+  document.getElementById("removeQuoteBtn");
+
+removeQuoteBtn.addEventListener("click", async () => {
+  if (!authenticated) {
+    alert("Please log in first.");
+    return;
+  }
+
+  const confirmed = confirm(
+    "Permanently remove the current quote?\n\n" +
+    "It will be excluded from future rotations " +
+    "and a replacement will be requested."
+  );
+
+  if (!confirmed) return;
+
+  removeQuoteBtn.disabled = true;
+
+  try {
+    const response = await fetch(
+      "https://vestaboard-control.t9hg5dy2zv.workers.dev/remove",
+      {
+        method: "POST",
+        headers: {
+          "X-App-Password":
+            document.getElementById("appPassword").value,
+        },
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error(
+        result.error || "Unable to remove quote"
+      );
+    }
+
+    alert(
+      "Quote permanently removed:\n\n" +
+      result.quote +
+      "\n\nReplacement requested."
+    );
+
+  } catch (error) {
+    alert(error.message);
+  } finally {
+    removeQuoteBtn.disabled = false;
+  }
+});
+
 const loginStatus = document.getElementById("loginStatus");
 
 loginForm.addEventListener("submit", async event => {
