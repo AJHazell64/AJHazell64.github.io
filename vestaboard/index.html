@@ -79,28 +79,114 @@ button small{display:block;font-size:12px;font-weight:normal;color:#a4a9b4;margi
 </section>
 </main>
 
+
 <script>
-const preview = [
- "STAY CURIOUS",
- "KEEP MOVING",
- "09:05"
-];
-
 const board = document.getElementById("board");
+const heading = document.querySelector(".heading");
+const notice = board.nextElementSibling;
 
-preview.forEach(text => {
- const row = document.createElement("div");
- row.className = "board-row";
+const source =
+  "https://raw.githubusercontent.com/AJHazell64/Vestaboard/main/data/current-board.json";
 
- text.padEnd(15," ").slice(0,15).split("").forEach(char => {
-  const tile = document.createElement("div");
-  tile.className = "tile" + (char !== " " ? " filled" : "");
-  tile.textContent = char === " " ? "" : char;
-  row.appendChild(tile);
- });
+const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const numbers = "1234567890";
 
- board.appendChild(row);
-});
+const symbols = {
+  37:"!",38:"@",39:"#",40:"$",41:"(",
+  42:")",44:"-",46:"+",47:"&",48:"=",
+  49:";",50:":",52:"'",53:'"',54:"%",
+  55:",",56:".",59:"/",60:"?",62:"♥"
+};
+
+const colours = {
+  63:"#e12720",
+  64:"#f47b00",
+  65:"#ffb511",
+  66:"#179447",
+  67:"#2484cf",
+  68:"#75318d",
+  69:"#ffffff",
+  70:"#111111",
+  71:"#e5e3dd"
+};
+
+function renderBoard(characters) {
+  board.replaceChildren();
+
+  characters.forEach(rowData => {
+    const row = document.createElement("div");
+    row.className = "board-row";
+
+    rowData.forEach(code => {
+      const tile = document.createElement("div");
+      tile.className = "tile";
+
+      if (code >= 63 && code <= 71) {
+        tile.style.background = colours[code];
+      } else if (code !== 0) {
+        tile.classList.add("filled");
+
+        if (code >= 1 && code <= 26) {
+          tile.textContent = letters[code - 1];
+        } else if (code >= 27 && code <= 36) {
+          tile.textContent = numbers[code - 27];
+        } else {
+          tile.textContent = symbols[code] || "";
+        }
+      }
+
+      row.appendChild(tile);
+    });
+
+    board.appendChild(row);
+  });
+}
+
+async function refreshBoard() {
+  try {
+    const response = await fetch(
+      source + "?t=" + Date.now(),
+      { cache: "no-store" }
+    );
+
+    if (!response.ok) {
+      throw new Error("Board data unavailable");
+    }
+
+    const data = await response.json();
+
+    if (
+      !Array.isArray(data.characters) ||
+      data.characters.length !== 3 ||
+      !data.characters.every(
+        row => Array.isArray(row) &&
+        row.length === 15
+      )
+    ) {
+      throw new Error("Invalid board data");
+    }
+
+    renderBoard(data.characters);
+
+    heading.textContent = "LIVE BOARD PREVIEW";
+
+    notice.textContent =
+      "Last board update: " +
+      new Date(data.updatedAt).toLocaleString(
+        "en-GB",
+        { dateStyle:"short", timeStyle:"short" }
+      );
+  } catch (error) {
+    heading.textContent = "BOARD PREVIEW UNAVAILABLE";
+    notice.textContent =
+      "Unable to load the latest display. Retrying automatically.";
+    console.error(error);
+  }
+}
+
+refreshBoard();
+setInterval(refreshBoard, 60000);
 </script>
+
 </body>
 </html>
