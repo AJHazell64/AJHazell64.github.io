@@ -327,9 +327,14 @@ loginForm.addEventListener("submit", async event => {
 
     const result = await response.json();
 
-    loginStatus.textContent = result.authenticated
-      ? "Password accepted. Controls ready for connection."
-      : "Incorrect password";
+
+if (result.authenticated) {
+  loginStatus.textContent = "Password accepted.";
+  loginForm.closest(".panel").style.display = "none";
+} else {
+  loginStatus.textContent = "Incorrect password";
+}
+
 
   } catch (error) {
     loginStatus.textContent = error.message;
