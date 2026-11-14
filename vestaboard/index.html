@@ -346,10 +346,11 @@ button small {
 </button>
 
 
-    <button disabled>
-      ▤ Status
-      <small>Quote statistics</small>
-    </button>
+
+<button id="statusQuoteBtn">
+  ▤ Status
+  <small>Quote statistics</small>
+</button>
 
     <button disabled>
       ↻ Reset
@@ -362,24 +363,42 @@ button small {
   </div>
 </section>
 
+
 <section class="panel">
-  <div class="heading">QUOTE LIBRARY · LAST VERIFIED</div>
+  <div class="heading">QUOTE LIBRARY · LIVE</div>
 
   <div class="statrow">
     <span class="muted">Active quotes</span>
-    <strong>291</strong>
+    <strong id="statActive">—</strong>
+  </div>
+
+  <div class="statrow">
+    <span class="muted">Used this cycle</span>
+    <strong id="statUsed">—</strong>
+  </div>
+
+  <div class="statrow">
+    <span class="muted">Remaining this cycle</span>
+    <strong id="statRemaining">—</strong>
   </div>
 
   <div class="statrow">
     <span class="muted">Permanently removed</span>
-    <strong>1</strong>
+    <strong id="statRemoved">—</strong>
   </div>
 
-  <div class="notice">
-    These figures are not live.
-    Status will refresh them once connected.
+  <div class="statrow">
+    <span class="muted">Pending app quotes</span>
+    <strong id="statPending">—</strong>
+  </div>
+
+  <div class="notice" id="libraryStatus">
+    Log in to load live quote statistics.
   </div>
 </section>
+
+
+
 
 </main>
 
@@ -793,6 +812,80 @@ removeQuoteBtn.addEventListener("click", async () => {
   }
 });
 
+
+const statusQuoteBtn =
+  document.getElementById("statusQuoteBtn");
+
+const libraryStatus =
+  document.getElementById("libraryStatus");
+
+async function refreshQuoteStatus() {
+  if (!authenticated) {
+    libraryStatus.textContent = "Please log in first.";
+    return;
+  }
+
+  statusQuoteBtn.disabled = true;
+  libraryStatus.textContent = "Refreshing quote library...";
+
+  try {
+    const response = await fetch(
+      "https://vestaboard-control.t9hg5dy2zv.workers.dev/status",
+      {
+        method: "POST",
+        headers: {
+          "X-App-Password":
+            document.getElementById("appPassword").value,
+        },
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error(
+        result.error || "Unable to load quote statistics"
+      );
+    }
+
+    document.getElementById("statActive").textContent =
+      result.active;
+
+    document.getElementById("statUsed").textContent =
+      result.used;
+
+    document.getElementById("statRemaining").textContent =
+      result.remaining;
+
+    document.getElementById("statRemoved").textContent =
+      result.removed;
+
+    document.getElementById("statPending").textContent =
+      result.pending;
+
+    libraryStatus.textContent =
+      "Last refreshed: " +
+      new Date(result.updatedAt).toLocaleString(
+        "en-GB",
+        { dateStyle: "short", timeStyle: "short" }
+      );
+
+  } catch (error) {
+    libraryStatus.textContent =
+      error.message || "Unable to load quote library";
+  } finally {
+    statusQuoteBtn.disabled = false;
+  }
+}
+
+statusQuoteBtn.addEventListener(
+  "click",
+  refreshQuoteStatus
+);
+
+const loginForm = document.getElementById("loginForm");
+
+  
 const loginStatus = document.getElementById("loginStatus");
 
 loginForm.addEventListener("submit", async event => {
@@ -825,8 +918,11 @@ loginForm.addEventListener("submit", async event => {
 
 
 if (result.authenticated) {
-  authenticated = true;
-  if (quoteEditor.open) previewQuote();
+
+authenticated = true;
+if (quoteEditor.open) previewQuote();
+refreshQuoteStatus();
+
   loginStatus.textContent = "Password accepted.";
 
       document.getElementById("loginPanel").style.display =
