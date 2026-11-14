@@ -980,13 +980,19 @@ loginForm.addEventListener("submit", async event => {
       }
     );
 
-    if (!response.ok) {
-      throw new Error(
-        "Incorrect password or connection failed"
-      );
-    }
 
-    const result = await response.json();
+const result = await response.json();
+
+if (!response.ok) {
+  throw new Error(
+    "Login error " + response.status + ": " +
+    (result.error ||
+      (result.authenticated === false
+        ? "Incorrect password"
+        : "Unknown error"))
+  );
+}
+
 
 
 if (result.authenticated) {
