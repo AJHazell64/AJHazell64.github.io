@@ -1,0 +1,106 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101114">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Vestaboard Control</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;background:#101114;color:#f5f5f5;
+ font-family:Arial,Helvetica,sans-serif;
+}
+main{max-width:520px;margin:auto;padding:24px 18px}
+header{display:flex;justify-content:space-between;align-items:center}
+h1{font-size:25px;margin:10px 0}
+.subtitle{color:#9297a3;font-size:13px}
+.panel{
+ background:#1b1d22;border:1px solid #32353d;
+ border-radius:18px;padding:18px;margin-top:22px;
+}
+.heading{font-size:13px;color:#a4a9b4;margin-bottom:16px}
+.board{background:#080808;padding:12px 6px;border-radius:10px}
+.board-row{display:grid;grid-template-columns:repeat(15,1fr);gap:3px;margin:4px 0}
+.tile{
+ aspect-ratio:0.82;background:#292929;
+ border-radius:2px;display:flex;align-items:center;
+ justify-content:center;font-size:clamp(7px,1.7vw,12px);
+ font-weight:700;color:#111;
+}
+.tile.filled{background:#e3e1db}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+button{
+ background:#2b2e36;color:white;border:1px solid #454952;
+ border-radius:14px;padding:22px 10px;font-size:17px;font-weight:bold;
+}
+button:disabled{opacity:.55;cursor:not-allowed}
+button small{display:block;font-size:12px;font-weight:normal;color:#a4a9b4;margin-top:7px}
+.statrow{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #33363d}
+.statrow:last-child{border:0}
+.muted{color:#a4a9b4}
+.notice{margin-top:15px;color:#a4a9b4;font-size:12px;line-height:1.6}
+</style>
+</head>
+<body>
+<main>
+<header>
+<div>
+<h1>Vestaboard</h1>
+<div class="subtitle">Mobile Control Centre</div>
+</div>
+<div style="font-size:28px">▦</div>
+</header>
+
+<section class="panel">
+<div class="heading">BOARD PREVIEW · DEMONSTRATION</div>
+<div class="board" id="board"></div>
+<div class="notice">Live board connection pending</div>
+</section>
+
+<section class="panel">
+<div class="heading">CONTROLS</div>
+<div class="controls">
+<button disabled>⏭ Next<small>Change quote</small></button>
+<button disabled>✕ Remove<small>Exclude quote</small></button>
+<button disabled>▤ Status<small>Quote statistics</small></button>
+<button disabled>↻ Reset<small>Restart cycle</small></button>
+</div>
+<div class="notice">Controls will activate after secure connection.</div>
+</section>
+
+<section class="panel">
+<div class="heading">QUOTE LIBRARY · LAST VERIFIED</div>
+<div class="statrow"><span class="muted">Active quotes</span><strong>291</strong></div>
+<div class="statrow"><span class="muted">Permanently removed</span><strong>1</strong></div>
+<div class="notice">These figures are not live. Status will refresh them once connected.</div>
+</section>
+</main>
+
+<script>
+const preview = [
+ "STAY CURIOUS",
+ "KEEP MOVING",
+ "09:05"
+];
+
+const board = document.getElementById("board");
+
+preview.forEach(text => {
+ const row = document.createElement("div");
+ row.className = "board-row";
+
+ text.padEnd(15," ").slice(0,15).split("").forEach(char => {
+  const tile = document.createElement("div");
+  tile.className = "tile" + (char !== " " ? " filled" : "");
+  tile.textContent = char === " " ? "" : char;
+  row.appendChild(tile);
+ });
+
+ board.appendChild(row);
+});
+</script>
+</body>
+</html>
